@@ -17,13 +17,13 @@ jobs:
     outputs:
       download-link: ${{ steps.aseprite-link.outputs.download-link }}
       release-tag: ${{ steps.aseprite-link.outputs.release-tag }}
-    steps:
-      - name: Fetch Aseprite release link
-        id: aseprite-link
-        uses: a1393323447/fetch-release@main
-        with:
-            group: aseprite
-            repo: aseprite
+    步骤:
+      - 名称: 获取 Aseprite 发布链接
+        id： aseprite-link
+        使用：a1393323447/fetch-release@main
+        与：
+            组: aseprite
+            仓库: aseprite
             match: Aseprite-.*?-Source.zip
 
   create-release:
@@ -37,57 +37,57 @@ jobs:
       release-tag: ${{ needs.fetch-aseprite-info.outputs.release-tag }}
     steps:
       - uses: actions/checkout@v2
-      - uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ needs.fetch-aseprite-info.outputs.release-tag }}
+      - 使用：ncipollo/release-action@v1
+        与：
+          标签：${{ needs.fetch-aseprite-info.outputs.release-tag }}
           body: Aseprite-${{ needs.fetch-aseprite-info.outputs.release-tag }}
-          skipIfReleaseExists: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          跳过如果发布已存在：真
+          令牌：${{ secrets.GITHUB_TOKEN }}
 
-  build-aseprite:
-    name: Build Aseprite
-    needs: create-release
-    permissions:
-      contents: write
-    runs-on: ${{ matrix.os }}
-    strategy:
-        matrix:
-          os: [ windows-latest, ubuntu-latest, macOS-latest ]
-        fail-fast: false
-    steps:
-      - name: Install Dependencies
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
+  编译-Aseprite:
+    名称: 构建 Aseprite
+    需要： 创建发布
+    权限:
+      目录: 写
+    运行于：${{ matrix.os }}
+    策略:
+        矩阵:
+          操作系统： [ windows-latest ]
+        快速失败：假
+    步骤:
+      - 名称: 安装依赖项
+        如果：runner.os == 'Linux'
+        壳： bash
+        运行： |
           sudo apt-get update -qq
-          sudo apt-get install -y \
+          请将以下文本翻译成中文:           sudo apt-get install -y \
             libpixman-1-dev libfreetype6-dev libharfbuzz-dev zlib1g-dev \
             libx11-dev libxcursor-dev libxi-dev libgl1-mesa-dev libfontconfig1-dev
-      - uses: actions/checkout@v4
-      - name: Install Aseprite
-        shell: bash
-        run: |
+      - 使用：actions/checkout@v4
+      - 名称: 安装 Aseprite
+        壳： bash
+        运行： |
           git clone --recurse-submodules -j8 https://github.com/aseprite/aseprite --branch ${{ needs.create-release.outputs.release-tag }}
-      - name: Install Skia
-        working-directory: aseprite
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]] ; then
+      - 名称: 安装 Skia
+        工作目录：aseprite
+        壳： bash
+        运行： |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
             choco install wget -y --no-progress
             wget https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-Windows-Release-x64.zip
-            unzip Skia-Windows-Release-x64.zip -d skia
-          elif [[ "${{ runner.os }}" == "macOS" ]] ; then
+            解压 Skia-Windows-Release-x64.zip -d skia
+          elif [["${{ runner.os }}" == "macOS"]] ; then
             wget https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-macOS-Release-arm64.zip
-            unzip Skia-macOS-Release-arm64.zip -d skia
-          else
+            解压 Skia-macOS-Release-arm64.zip 到 skia 目录
+          否则
             wget https://github.com/aseprite/skia/releases/download/m124-08a5439a6b/Skia-Linux-Release-x64.zip
-            unzip Skia-Linux-Release-x64.zip -d skia
-          fi
-      - uses: aseprite/get-ninja@main
-      - uses: ilammy/msvc-dev-cmd@v1
-        if: runner.os == 'Windows'
-      - name: Generating Makefiles
-        shell: bash
+            解压 Skia-Linux-Release-x64.zip 到 skia 目录
+          输入：
+      - 使用： aseprite/get-ninja@main
+      - 使用： ilammy/msvc-dev-cmd@v1
+        如果：runner.os == 'Windows'
+      - 名称: 生成 Makefiles
+        壳： bash
         working-directory: aseprite
         run: |
           export enable_ccache=off
